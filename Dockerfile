@@ -1,26 +1,22 @@
-# from rasa base image
-FROM rasa/rasa:3.1.0
-# copy all source and the Rasa generated model
-COPY . /app
+FROM python:3.9.7-stretch AS BASE
 
-# inform which port will run on
-EXPOSE 5005
-
-# script to run rasa core
-COPY startup.sh /app/scripts/startup.sh
-# script to run rasa shell
-COPY shell.sh /app/scripts/shell.sh
-
-USER root
-RUN chmod a+x /app/scripts/startup.sh
-RUN chmod a+x /app/scripts/shell.sh
+RUN apt-get update \
+    && apt-get --assume-yes --no-install-recommends install \
+        build-essential \
+        curl \
+        git \
+        jq \
+        libgomp1 \
+        vim
 
 WORKDIR /app
 
-ENTRYPOINT []
-ENV shell_mode false
+# upgrade pip version
+RUN pip install --no-cache-dir --upgrade pip
 
-RUN rasa train nlu
+RUN pip install rasa==3.1.0
 
-# launch script (rasa shell or rasa run)
-CMD sh -c 'if [ "$shell_mode" = false ]; then /app/scripts/startup.sh; else  /app/scripts/shell.sh; fi'
+ADD config.yml config.yml
+ADD domain.yml domain.yml
+ADD credentials.yml credentials.yml
+ADD endpoints.yml endpoints.yml
