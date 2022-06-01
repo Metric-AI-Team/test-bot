@@ -20,5 +20,7 @@ WORKDIR /app
 ENTRYPOINT []
 ENV shell_mode false
 
+RUN rasa train nlu
+
 # launch script (rasa shell or rasa run)
 CMD sh -c 'if [ "$shell_mode" = false ]; then /app/scripts/startup.sh; else  /app/scripts/shell.sh; fi'
